@@ -36,7 +36,14 @@ async function run() {
         res.send(districts);
     })
 
-   
+    app.get("/upazilas", async (req, res) => {
+        const id = req.query?.id;
+        const query = { district_id: id };
+        const cursor = upazilaCollection.find(query);
+        const upazilas = await cursor.toArray();
+        res.send(upazilas);
+        
+    })
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
