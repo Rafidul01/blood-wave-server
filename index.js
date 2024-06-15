@@ -25,6 +25,18 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+
+    const districtCollection = client.db("bloodWave").collection("district");
+    const upazilaCollection = client.db("bloodWave").collection("upazila");
+
+    app.get("/districts", async (req, res) => {
+        const query = {};
+        const cursor = districtCollection.find(query);
+        const districts = await cursor.toArray();
+        res.send(districts);
+    })
+
+   
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
