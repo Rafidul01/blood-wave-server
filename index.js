@@ -62,7 +62,18 @@ async function run() {
         const users = await userCollection.findOne(query);
         res.send(users);
     })
-    
+
+    app.patch("/users", async (req, res) => {
+        const email = req.query?.email;
+        const query = { email: email };
+        const user = req.body;
+        const option = { upsert: true };
+        const updatedUser = {
+            $set: user
+        }
+        const result = await userCollection.updateOne(query, updatedUser, option);
+        res.send(result);
+    })
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
