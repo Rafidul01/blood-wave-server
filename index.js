@@ -55,6 +55,14 @@ async function run() {
         res.send(result);
     })
 
+    app.get("/users", async (req, res) => {
+        const email = req.query?.email;
+        console.log(email);
+        const query = { email: email };
+        const users = await userCollection.findOne(query);
+        res.send(users);
+    })
+    
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
