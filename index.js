@@ -26,9 +26,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
 
+    // Collections
     const districtCollection = client.db("bloodWave").collection("district");
     const upazilaCollection = client.db("bloodWave").collection("upazila");
+    const userCollection = client.db("bloodWave").collection("users");
 
+    // district and upazila api
     app.get("/districts", async (req, res) => {
         const query = {};
         const cursor = districtCollection.find(query);
@@ -44,6 +47,15 @@ async function run() {
         res.send(upazilas);
         
     })
+
+    // user api
+    app.post("/users", async (req, res) => {
+        const user = req.body;
+        const result = await userCollection.insertOne(user);
+        res.send(result);
+    })
+
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
