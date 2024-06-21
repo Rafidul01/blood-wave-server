@@ -122,6 +122,18 @@ async function run() {
         res.send(request);
     })
 
+    app.patch("/request/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const request = req.body;
+        const option = { upsert: true };
+        const updatedRequest = {
+          $set: request
+        }
+        const result = await requestCollection.updateOne(query, updatedRequest, option);
+        res.send(result);
+    })
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
