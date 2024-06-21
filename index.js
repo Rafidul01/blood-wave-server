@@ -75,6 +75,12 @@ async function run() {
         res.send(users);
     })
 
+    app.get("/all-users", async (req, res) => {
+        const query = {};
+        const users = await userCollection.find(query).toArray();
+        res.send(users);
+    })
+
     app.patch("/users", async (req, res) => {
         const email = req.query?.email;
         const query = { email: email };
@@ -140,6 +146,8 @@ async function run() {
         const result = await requestCollection.deleteOne(query);
         res.send(result);
     })
+
+    
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
