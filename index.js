@@ -95,6 +95,13 @@ async function run() {
         res.send(result);
     })
 
+    app.get("/requests", async (req, res) => {
+        const email = req.query?.email;
+        const query = { requesterEmail: email };
+        const requests = await requestCollection.find(query).toArray();
+        res.send(requests);
+    })
+
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
