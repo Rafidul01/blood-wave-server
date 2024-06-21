@@ -97,7 +97,8 @@ async function run() {
 
     app.get("/requests", async (req, res) => {
         const email = req.query?.email;
-        const query = { requesterEmail: email };
+        const filter = req.query?.status;
+        const query = { requesterEmail: email , status: filter };      
         const requests = await requestCollection.find(query).toArray();
         res.send(requests);
     })
