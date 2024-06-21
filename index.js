@@ -30,6 +30,7 @@ async function run() {
     const districtCollection = client.db("bloodWave").collection("district");
     const upazilaCollection = client.db("bloodWave").collection("upazila");
     const userCollection = client.db("bloodWave").collection("users");
+    const requestCollection = client.db("bloodWave").collection("requests");
 
     // district and upazila api
     app.get("/districts", async (req, res) => {
@@ -39,9 +40,19 @@ async function run() {
         res.send(districts);
     })
 
+    app.get("/districts/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { id: id };
+        const district = await districtCollection.findOne(query);
+        res.send(district);
+    })
+
     app.get("/upazilas", async (req, res) => {
         const id = req.query?.id;
-        const query = { district_id: id };
+        let query = {};
+        if (id) {
+            query = { district_id: id };
+        }
         const cursor = upazilaCollection.find(query);
         const upazilas = await cursor.toArray();
         res.send(upazilas);
@@ -72,6 +83,15 @@ async function run() {
             $set: user
         }
         const result = await userCollection.updateOne(query, updatedUser, option);
+        res.send(result);
+    })
+
+    // request api
+    
+    app.post("/requests", async (req, res) => {
+        const request = req.body;
+        console.log(request);
+        const result = await requestCollection.insertOne(request);
         res.send(result);
     })
 
