@@ -161,6 +161,16 @@ async function run() {
         res.send(result);
     })
 
+
+    //stats api
+    app.get("/stats", async (req, res) => {
+      const query = { role: "donor" };
+      const count = await userCollection.countDocuments(query);
+      
+      const requests = await requestCollection.estimatedDocumentCount();
+      res.send({ users: count, requests: requests });
+    })
+
     
 
     // Connect the client to the server	(optional starting in v4.7)
