@@ -139,6 +139,17 @@ async function run() {
         res.send(result);
     })
 
+    //filter doner by blood group distict and upazila
+    app.get("/donors", async (req, res) => {
+      const bloodGroup = decodeURIComponent(req.query?.bloodGroup);
+      const district = decodeURIComponent(req.query?.district);
+      const upazila = decodeURIComponent(req.query?.upazila);
+        console.log(bloodGroup, district, upazila);
+        const query = {  district: district, upazila: upazila, role: 'donor' };
+        const donors = await userCollection.find(query).toArray();
+        res.send(donors);
+    })
+
     // make admin  api
     app.patch("/users/admin/:id", async (req, res) => {
         const id = req.params.id;
