@@ -33,6 +33,7 @@ async function run() {
     const upazilaCollection = client.db("bloodWave").collection("upazila");
     const userCollection = client.db("bloodWave").collection("users");
     const requestCollection = client.db("bloodWave").collection("requests");
+    const blogsCollection = client.db("bloodWave").collection("blogs");
 
     // JWT related Api
     app.post('/jwt', async (req, res) => {
@@ -237,7 +238,7 @@ async function run() {
         res.send(result);
     })
 
-    app.get("/all-requests", async (req, res) => {
+    app.get("/all-requests",verifyToken, (verifyAdmin || verifyVolunteer), async (req, res) => {
       const filter = req.query?.status;
         if(!filter){
             const query = { };
@@ -256,7 +257,7 @@ async function run() {
 
 
     //stats api
-    app.get("/stats", async (req, res) => {
+    app.get("/stats",verifyToken, (verifyAdmin || verifyVolunteer), async (req, res) => {
       const query = { role: "donor" };
       const count = await userCollection.countDocuments(query);
 
@@ -264,7 +265,13 @@ async function run() {
       res.send({ users: count, requests: requests });
     })
 
-    
+    //blog api
+    app.post("/blogs", async (req, res) => {
+        const blog = req.body;
+        console.log(blog);
+        const result = await blogsCollection.insertOne(blog);
+        res.send(result);
+    })
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
