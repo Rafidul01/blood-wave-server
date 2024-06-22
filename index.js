@@ -274,12 +274,38 @@ async function run() {
     })
 
     app.get("/blogs", async (req, res) => {
-        const query = {};
-        const cursor = blogsCollection.find(query);
-        const blogs = await cursor.toArray();
-        res.send(blogs);
+        const filter = req.query?.status;
+        if(!filter){
+          const query = {};
+          const cursor = blogsCollection.find(query);
+          const blogs = await cursor.toArray();
+          res.send(blogs);
+        }
+        else{
+         
+        
+        
+          const query = { status: filter }; 
+
+          const cursor = blogsCollection.find(query);
+          const blogs = await cursor.toArray();
+          res.send(blogs);
+
+        }
+        
     })
-    
+
+    app.patch("/blogs/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const blog = req.body;
+        const option = { upsert: true };
+        const updatedBlog = {
+          $set: blog
+        }
+        const result = await blogsCollection.updateOne(query, updatedBlog, option);
+        res.send(result);
+    })
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
