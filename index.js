@@ -249,7 +249,7 @@ async function run() {
         res.send(result);
     })
 
-    app.get("/all-requests",verifyToken, async (req, res) => {
+    app.get("/all-requests", async (req, res) => {
       const filter = req.query?.status;
         if(!filter){
             const query = { };
@@ -323,6 +323,14 @@ async function run() {
         const query = { _id: new ObjectId(id) };
         const result = await blogsCollection.deleteOne(query);
         res.send(result);
+    })
+
+    app.get("/blog/:id", async (req, res) => {
+        const id = req.params.id;
+
+        const query = { _id: new ObjectId(id) };
+        const blog = await blogsCollection.findOne(query);
+        res.send(blog);
     })
 
     // Connect the client to the server	(optional starting in v4.7)
