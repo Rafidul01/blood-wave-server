@@ -161,12 +161,29 @@ async function run() {
         res.send(result);
     })
 
+    app.get("/all-requests", async (req, res) => {
+      const filter = req.query?.status;
+        if(!filter){
+            const query = { };
+            const requests = await requestCollection.find(query).toArray();
+            res.send(requests);
+        }
+        else{
+          const query = { status: filter }; 
+
+        const requests = await requestCollection.find(query).toArray();
+        res.send(requests);
+
+        }
+        
+    })
+
 
     //stats api
     app.get("/stats", async (req, res) => {
       const query = { role: "donor" };
       const count = await userCollection.countDocuments(query);
-      
+
       const requests = await requestCollection.estimatedDocumentCount();
       res.send({ users: count, requests: requests });
     })
