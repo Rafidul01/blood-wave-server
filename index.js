@@ -93,6 +93,20 @@ async function run() {
         res.send(result);
     })
 
+    // make admin  api
+    app.patch("/users/admin/:id", async (req, res) => {
+        const id = req.params.id;
+        console.log(id);
+        const query = { _id: new ObjectId(id) };
+        const user = req.body;
+        const option = { upsert: true };
+        const updatedUser = {
+            $set: user
+        }
+        const result = await userCollection.updateOne(query, updatedUser, option);
+        res.send(result);
+    })
+
     // request api
     
     app.post("/requests", async (req, res) => {
