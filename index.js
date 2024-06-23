@@ -13,6 +13,7 @@ app.use(express.json());
 
 //MongoDB connection
 
+const stripe = require("stripe")('sk_test_51PUn1Z05yz76LOBme2zCB4Dbts1U9X3Xi8reHSEL0WUu2MXoBbZwETQkVcWzY190fgFItMfj30t2WNDkeUpHnE5000dtcCwbau');
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hjxwn6k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -34,6 +35,7 @@ async function run() {
     const userCollection = client.db("bloodWave").collection("users");
     const requestCollection = client.db("bloodWave").collection("requests");
     const blogsCollection = client.db("bloodWave").collection("blogs");
+    const paymentCollection = client.db('bloodWave').collection("payments");
 
     // JWT related Api
     app.post('/jwt', async (req, res) => {
@@ -271,9 +273,19 @@ async function run() {
     app.get("/stats",verifyToken, async (req, res) => {
       const query = { role: "donor" };
       const count = await userCollection.countDocuments(query);
-
       const requests = await requestCollection.estimatedDocumentCount();
-      res.send({ users: count, requests: requests });
+      const amount = await paymentCollection.estimatedDocumentCount();
+
+      const result = await paymentCollection.aggregate([
+        {
+            $group: {
+                _id: null,
+                totalFunding: { $sum: "$price" }
+            }
+        }
+    ]).toArray();
+      const funding = result.length > 0 ? result[0].totalFunding : 0;
+      res.send({ users: count, requests: requests, funding });
     })
 
     //blog api
@@ -331,6 +343,40 @@ async function run() {
         const query = { _id: new ObjectId(id) };
         const blog = await blogsCollection.findOne(query);
         res.send(blog);
+    })
+
+
+    // Stripe api
+
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price*100)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ['card']
+      });
+    
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+
+    // get payment data
+    app.get('/payments',async(req, res)=>{
+      const query = {};
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    
+    app.post('/payments',async(req,res) => {
+      const payment  = req.body;
+      const paymentResult = await paymentCollection.insertOne(payment);
+
+      
+      res.send({paymentResult})
     })
 
     // Connect the client to the server	(optional starting in v4.7)
